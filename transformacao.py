@@ -64,19 +64,27 @@ def bloco_categorico():
     ])
 
 
-def montar_preprocessador(cols_log=(), escalador="standard"):
+def montar_preprocessador(cols_log=(), escalador="standard", pca_numericas=None):
     """ColumnTransformer com três grupos: colunas com log1p, demais numéricas e
-    categóricas. O escalador vale para todas as numéricas; o one-hot fica 0/1."""
+    categóricas. O escalador vale para todas as numéricas; o one-hot fica 0/1.
+    Com pca_numericas (inteiro ou fração da variância), o PCA é aplicado só nas
+    numéricas, depois da escala, e o one-hot passa direto."""
     cols_log = list(cols_log)
 
     def _cols_resto(X):   # as numéricas que não levam log1p, lidas do próprio X
         return [c for c in colunas_numericas(X) if c not in cols_log]
 
-    return ColumnTransformer([
+    numericas = [
         ("log", bloco_numerico(True, escalador), cols_log),
         ("num", bloco_numerico(False, escalador), _cols_resto),
-        ("cat", bloco_categorico(), CATEGORICAS),
-    ])
+    ]
+    if pca_numericas is not None:
+        bloco = Pipeline([
+            ("pre", ColumnTransformer(numericas)),
+            ("pca", PCA(n_components=pca_numericas, random_state=42)),
+        ])
+        numericas = [("num", bloco, colunas_numericas)]
+    return ColumnTransformer(numericas + [("cat", bloco_categorico(), CATEGORICAS)])
 
 
 def com_pca(preprocessador, n_componentes, random_state=42):
