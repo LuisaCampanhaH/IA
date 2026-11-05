@@ -7,18 +7,20 @@ Uso no notebook do grupo:
     pipe = Pipeline([("pre", pre), ("modelo", LogisticRegression(max_iter=2000))])
 
 Tudo aqui é um transformador do sklearn, então só é ajustado no treino de cada
-fold. A imputação (mediana / mais frequente) e a codificação (one-hot) são
-provisórias: a escolha final é da Pessoa 2 e entra no lugar delas na integração.
+fold. A imputação e a codificação são as escolhidas pela Pessoa 2 (mediana, moda
+e one-hot com raras juntas), vindas de ausentes_codificacao.py. Esta função já
+inclui tudo isso, então ela substitui o montar_preprocessador da Pessoa 2.
 """
 import numpy as np
 from sklearn.compose import ColumnTransformer
 from sklearn.decomposition import PCA
-from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, RobustScaler, StandardScaler
 
+from ausentes_codificacao import (ALTA_CARDINALIDADE, BAIXA_CARDINALIDADE, CATEGORICAS,
+                                  _codificador_service, _imputador_categorico, _imputador_numerico)
+
 ALVO = "class"
-CATEGORICAS = ["protocol_type", "service", "flag"]
 # fora do modelo nesta comparação; o grupo ainda decide se usa (ver Pessoa 1)
 FORA = ["score_ids_legado"]
 
@@ -48,7 +50,7 @@ def colunas_numericas(X):
 def bloco_numerico(log, escalador):
     """Imputa pela mediana, aplica log1p (opcional) e escala (opcional).
     A mediana vem antes do log1p: como o log é crescente, dá no mesmo."""
-    passos = [("imputar", SimpleImputer(strategy="median"))]
+    passos = [("imputar", _imputador_numerico("mediana"))]
     if log:
         passos.append(("log1p", FunctionTransformer(np.log1p, feature_names_out="one-to-one")))
     if ESCALADORES[escalador] is not None:
@@ -56,16 +58,19 @@ def bloco_numerico(log, escalador):
     return Pipeline(passos)
 
 
-def bloco_categorico():
-    """Provisório (Pessoa 2): mais frequente + one-hot que ignora categoria nova."""
-    return Pipeline([
-        ("imputar", SimpleImputer(strategy="most_frequent")),
-        ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
-    ])
+def blocos_categoricos():
+    """A escolha da Pessoa 2: moda nos textos; protocol_type e flag em one-hot;
+    service em one-hot com os serviços raros (ou novos no teste) numa coluna só."""
+    return [
+        ("cat_baixa", Pipeline([("imputar", _imputador_categorico("moda")),
+                                ("onehot", OneHotEncoder(handle_unknown="ignore"))]), BAIXA_CARDINALIDADE),
+        ("service", Pipeline([("imputar", _imputador_categorico("moda")),
+                              ("onehot", _codificador_service("onehot_raras"))]), [ALTA_CARDINALIDADE]),
+    ]
 
 
 def montar_preprocessador(cols_log=(), escalador="standard", pca_numericas=None):
-    """ColumnTransformer com três grupos: colunas com log1p, demais numéricas e
+    """ColumnTransformer com as colunas com log1p, as demais numéricas e as
     categóricas. O escalador vale para todas as numéricas; o one-hot fica 0/1.
     Com pca_numericas (inteiro ou fração da variância), o PCA é aplicado só nas
     numéricas, depois da escala, e o one-hot passa direto."""
@@ -80,11 +85,13 @@ def montar_preprocessador(cols_log=(), escalador="standard", pca_numericas=None)
     ]
     if pca_numericas is not None:
         bloco = Pipeline([
-            ("pre", ColumnTransformer(numericas)),
+            ("pre", ColumnTransformer(numericas, verbose_feature_names_out=False)),
             ("pca", PCA(n_components=pca_numericas, random_state=42)),
         ])
         numericas = [("num", bloco, colunas_numericas)]
-    return ColumnTransformer(numericas + [("cat", bloco_categorico(), CATEGORICAS)])
+    # sparse_threshold=0: saída sempre densa, como pedem o PCA e o SMOTE
+    return ColumnTransformer(numericas + blocos_categoricos(), sparse_threshold=0,
+                             verbose_feature_names_out=False)
 
 
 def com_pca(preprocessador, n_componentes, random_state=42):
