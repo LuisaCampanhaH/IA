@@ -60,15 +60,20 @@ def pipeline_etapa2(modelo, cols_log=T.COLS_LOG_CONTAGENS, escalador="standard")
 
 
 class Cortar(BaseEstimator, TransformerMixin):
-    """Winsorização: no fit, guarda os percentis de cada coluna; no transform, corta nesses limites."""
+    """Winsorização: no fit, guarda os percentis de cada coluna; no transform, corta nesses limites.
+    Se os dois limites são iguais no treino do fold, cortar deixaria a coluna constante, então
+    ela fica sem corte. cortadas_ marca as colunas em que o corte mudou algum valor do treino."""
 
     def __init__(self, inf=1, sup=99):
         self.inf = inf
         self.sup = sup
 
     def fit(self, X, y=None):
-        self.limite_inf_ = np.percentile(X, self.inf, axis=0)
-        self.limite_sup_ = np.percentile(X, self.sup, axis=0)
+        inf, sup = np.percentile(X, self.inf, axis=0), np.percentile(X, self.sup, axis=0)
+        self.sem_corte_ = inf == sup
+        self.limite_inf_ = np.where(self.sem_corte_, -np.inf, inf)
+        self.limite_sup_ = np.where(self.sem_corte_, np.inf, sup)
+        self.cortadas_ = ((X < self.limite_inf_) | (X > self.limite_sup_)).any(axis=0)
         return self
 
     def transform(self, X):
@@ -95,6 +100,12 @@ def pipeline_corte(modelo, inf, sup):
                             + T.blocos_categoricos(),
                             sparse_threshold=0, verbose_feature_names_out=False)
     return Pipeline([("pre", pre), ("modelo", clone(modelo))])
+
+
+def ler_cortadas(estimador, X, y):
+    """Quantas colunas o corte mudou de fato no treino deste fold."""
+    blocos = estimador.named_steps["pre"].named_transformers_
+    return int(blocos["log"].named_steps["cortar"].cortadas_.sum() + blocos["num"].named_steps["cortar"].cortadas_.sum())
 
 
 def pares_contraditorios(df_bruto):
