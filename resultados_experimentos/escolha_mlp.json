@@ -1,0 +1,22 @@
+{
+ "modelo": "mlp",
+ "score": false,
+ "cfg": {
+  "score": false,
+  "cat": "rf",
+  "num": "missforest",
+  "log": true,
+  "clip": null,
+  "nzv": false,
+  "fe": [],
+  "escala": true
+ },
+ "balanc": "none",
+ "pares": false,
+ "params_base": {
+  "sementes": 3
+ },
+ "media_lim": 0.9697895244937726,
+ "desvio_lim": 0.005697955044136719,
+ "media_05": 0.9691358276330797
+}

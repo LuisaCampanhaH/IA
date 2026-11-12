@@ -1,0 +1,19 @@
+{
+ "modelo": "arvore",
+ "score": false,
+ "cfg": {
+  "score": false,
+  "cat": "moda",
+  "num": "mediana",
+  "log": true,
+  "clip": null,
+  "nzv": false,
+  "fe": [],
+  "escala": true
+ },
+ "balanc": "none",
+ "pares": false,
+ "media_lim": 0.9663982272246743,
+ "desvio_lim": 0.003842171158630429,
+ "media_05": 0.9663982272246743
+}

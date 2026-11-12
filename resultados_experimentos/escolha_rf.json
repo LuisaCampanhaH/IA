@@ -1,0 +1,19 @@
+{
+ "modelo": "rf",
+ "score": false,
+ "cfg": {
+  "score": false,
+  "cat": "rf",
+  "num": "mediana",
+  "log": true,
+  "clip": null,
+  "nzv": false,
+  "fe": [],
+  "escala": true
+ },
+ "balanc": "none",
+ "pares": false,
+ "media_lim": 0.9834241213459876,
+ "desvio_lim": 0.0026840569104075503,
+ "media_05": 0.9763275261729637
+}

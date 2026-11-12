@@ -1,0 +1,40 @@
+{
+ "modelo": "rf",
+ "score": false,
+ "cfg": {
+  "score": false,
+  "cat": "rf",
+  "num": "mediana",
+  "log": true,
+  "clip": null,
+  "nzv": false,
+  "fe": [],
+  "escala": true
+ },
+ "balanc": "none",
+ "pares": false,
+ "media_lim": 0.9845711928617199,
+ "desvio_lim": 0.003085070845522056,
+ "media_05": 0.9785661274143816,
+ "params": {
+  "n_estimators": 300,
+  "max_features": 0.2,
+  "min_samples_leaf": 1,
+  "criterion": "gini",
+  "class_weight": null,
+  "max_depth": 30
+ },
+ "chave_probs": "31087fa0d7a4ebe3",
+ "limiares": [
+  0.38,
+  0.37,
+  0.36,
+  0.38,
+  0.38,
+  0.37,
+  0.37,
+  0.37,
+  0.37,
+  0.37
+ ]
+}

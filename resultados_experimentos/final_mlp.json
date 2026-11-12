@@ -1,0 +1,46 @@
+{
+ "modelo": "mlp",
+ "score": false,
+ "cfg": {
+  "score": false,
+  "cat": "rf",
+  "num": "missforest",
+  "log": true,
+  "clip": null,
+  "nzv": false,
+  "fe": [],
+  "escala": true
+ },
+ "balanc": "none",
+ "pares": false,
+ "params_base": {
+  "sementes": 3
+ },
+ "media_lim": 0.9749594415119471,
+ "desvio_lim": 0.004850462347475316,
+ "media_05": 0.9750041087938257,
+ "params": {
+  "sementes": 3,
+  "hidden_layer_sizes": [
+   128,
+   64
+  ],
+  "alpha": 1e-05,
+  "learning_rate_init": 0.003,
+  "batch_size": 128,
+  "n_iter_no_change": 20
+ },
+ "chave_probs": "b0e08d1a78de55c2",
+ "limiares": [
+  0.44,
+  0.44,
+  0.44,
+  0.44,
+  0.47,
+  0.53,
+  0.59,
+  0.51,
+  0.53,
+  0.5
+ ]
+}

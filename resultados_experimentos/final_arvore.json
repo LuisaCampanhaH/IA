@@ -1,0 +1,40 @@
+{
+ "modelo": "arvore",
+ "score": false,
+ "cfg": {
+  "score": false,
+  "cat": "moda",
+  "num": "mediana",
+  "log": true,
+  "clip": null,
+  "nzv": false,
+  "fe": [],
+  "escala": true
+ },
+ "balanc": "none",
+ "pares": false,
+ "media_lim": 0.9675857468897352,
+ "desvio_lim": 0.005785701978168492,
+ "media_05": 0.9678148038770378,
+ "params": {
+  "criterion": "gini",
+  "max_depth": 16,
+  "min_samples_leaf": 1,
+  "ccp_alpha": 1e-05,
+  "class_weight": null,
+  "max_features": null
+ },
+ "chave_probs": "7c013446cacdaff2",
+ "limiares": [
+  0.51,
+  0.31,
+  0.51,
+  0.51,
+  0.51,
+  0.63,
+  0.26,
+  0.26,
+  0.63,
+  0.24
+ ]
+}
